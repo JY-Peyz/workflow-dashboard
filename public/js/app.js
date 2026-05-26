@@ -802,8 +802,10 @@ function renderFinanceChart(entries) {
 }
 
 function setupEntryDefaults() {
-  const ownerEl = document.getElementById('entry-owner');
-  if (ownerEl && currentUser) ownerEl.value = currentUser.name;
+  const ownerLabel = document.getElementById('entry-owner-label');
+  const ownerHidden = document.getElementById('entry-owner');
+  if (ownerLabel && currentUser) ownerLabel.textContent = currentUser.name;
+  if (ownerHidden && currentUser) ownerHidden.value = currentUser.name;
   const dateEl = document.getElementById('entry-date');
   if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
 }
@@ -1369,6 +1371,7 @@ async function saveProfile() {
   document.getElementById('dropdown-name').textContent = currentUser.name;
   document.getElementById('dropdown-role').textContent = currentUser.role === 'leader' ? '팀장' : '팀원';
   document.getElementById('header-avatar-img').src = `/avatars/${currentUser.id}`;
+  document.getElementById('entry-owner-label').textContent = currentUser.name;
   document.getElementById('entry-owner').value = currentUser.name;
 
   closeModal('modal-profile');

@@ -171,10 +171,14 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .entry-tab{flex:1;padding:7px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--text-secondary);font-weight:600;transition:all .2s}
 .entry-tab.active{background:var(--accent);border-color:var(--accent);color:white}
 .entry-content{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0}
+.entry-meta-row{display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--input-bg);border-radius:8px;margin-bottom:6px;font-size:12px;min-width:0}
+.entry-meta-name{font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex-shrink:1}
+.entry-meta-sep{color:var(--text-secondary);flex-shrink:0}
+.entry-meta-date{border:none;background:transparent;font-size:12px;color:var(--text-secondary);font-family:inherit;outline:none;padding:0;flex-shrink:0;width:auto}
 .form-row{display:flex;gap:10px;min-width:0}
-.form-group{flex:1;display:flex;flex-direction:column;margin-bottom:5px}
+.form-group{flex:1;display:flex;flex-direction:column;margin-bottom:6px}
 .form-group label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
-.form-group input,.form-group select,.form-group textarea{padding:6px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s;min-width:0}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s;min-width:0}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
 .form-group textarea{resize:none}
 .btn-primary{width:100%;padding:8px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}
