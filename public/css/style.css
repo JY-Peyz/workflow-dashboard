@@ -156,10 +156,10 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .chart-container{flex:1;min-height:0;position:relative}
 .chart-container canvas{width:100%!important;height:100%!important}
 .chart-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:13px}
-.finance-summary{display:flex;gap:16px;margin-top:auto;flex-shrink:0;padding-top:6px}
-.fin-summary-item{display:flex;flex-direction:column}
+.finance-summary{display:flex;gap:8px;margin-top:auto;flex-shrink:0;padding-top:6px;overflow:hidden}
+.fin-summary-item{display:flex;flex-direction:column;min-width:0;flex:1}
 .fin-label{font-size:10px;color:var(--text-secondary)}
-.fin-value{font-family:'Inter',sans-serif;font-size:15px;font-weight:700}
+.fin-value{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fin-net{color:var(--accent)}
 .fin-value-row{display:flex;align-items:baseline;gap:6px}
 .fin-change{font-size:11px;font-weight:600;color:var(--text-secondary)}
@@ -170,11 +170,11 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .entry-tabs{display:flex;gap:4px;margin-bottom:8px;flex-shrink:0}
 .entry-tab{flex:1;padding:7px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--text-secondary);font-weight:600;transition:all .2s}
 .entry-tab.active{background:var(--accent);border-color:var(--accent);color:white}
-.entry-content{flex:1;overflow-y:auto;min-height:0}
-.form-row{display:flex;gap:10px}
+.entry-content{flex:1;overflow-y:auto;overflow-x:hidden;min-height:0}
+.form-row{display:flex;gap:10px;min-width:0}
 .form-group{flex:1;display:flex;flex-direction:column;margin-bottom:5px}
 .form-group label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
-.form-group input,.form-group select,.form-group textarea{padding:6px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s}
+.form-group input,.form-group select,.form-group textarea{padding:6px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s;min-width:0}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
 .form-group textarea{resize:none}
 .btn-primary{width:100%;padding:8px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}

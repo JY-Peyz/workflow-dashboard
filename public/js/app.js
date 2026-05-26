@@ -492,7 +492,7 @@ async function changeUserRole(userId, newRole) {
     if (result.ok) {
       showToast(`${label} 완료`);
       closeModal('modal-member-profile');
-      await loadTeam();
+      await loadUsers();
     } else {
       showToast(result.error || '권한 변경 실패');
     }
@@ -1373,7 +1373,7 @@ async function saveProfile() {
 
   closeModal('modal-profile');
   loadWeather();
-  loadTeam();
+  loadUsers();
   showToast('프로필이 저장되었습니다');
 }
 
