@@ -121,12 +121,10 @@
         <button class="entry-tab" onclick="switchEntryTab('upload')">파일 업로드</button>
         <button class="entry-tab" onclick="switchEntryTab('today')">오늘 내역</button>
       </div>
-      <div class="entry-content" id="entry-direct">
-        <div class="entry-meta-row">
-          <span class="entry-meta-name" id="entry-owner-label">담당자</span>
-          <input type="hidden" id="entry-owner" value="">
-          <span class="entry-meta-sep">·</span>
-          <input type="date" id="entry-date" class="entry-meta-date">
+      <div class="entry-content entry-direct-form" id="entry-direct">
+        <div class="entry-info-row">
+          <div class="entry-info-item"><span class="entry-info-label">담당자</span><span class="entry-info-value" id="entry-owner-label">담당자</span><input type="hidden" id="entry-owner" value=""></div>
+          <div class="entry-info-item"><span class="entry-info-label">날짜</span><input type="date" id="entry-date" class="entry-info-date"></div>
         </div>
         <div class="form-group"><label>업무/항목명</label><input type="text" id="entry-name" placeholder="예: 외주 디자인 비용"></div>
         <div class="form-row">
