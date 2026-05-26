@@ -878,7 +878,7 @@ function switchEntryTab(tab) {
   document.querySelectorAll('.entry-tab').forEach((el, i) => {
     el.classList.toggle('active', (tab === 'direct' && i === 0) || (tab === 'upload' && i === 1) || (tab === 'today' && i === 2));
   });
-  document.getElementById('entry-direct').style.display = tab === 'direct' ? 'block' : 'none';
+  document.getElementById('entry-direct').style.display = tab === 'direct' ? 'flex' : 'none';
   document.getElementById('entry-upload').style.display = tab === 'upload' ? 'flex' : 'none';
   document.getElementById('entry-today').style.display = tab === 'today' ? 'flex' : 'none';
   if (tab === 'today') loadTodayEntries();

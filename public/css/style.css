@@ -181,7 +181,7 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .entry-direct-form .form-group{margin-bottom:0}
 .entry-direct-form .form-group label{margin-bottom:3px}
 .entry-direct-form .form-group input,.entry-direct-form .form-group .custom-select{height:36px;padding:0 10px;font-size:13px}
-.entry-direct-form .form-group .custom-select{padding-right:28px}
+.entry-direct-form .form-group .custom-select{padding-right:28px;display:flex;align-items:center}
 .entry-direct-form .form-row{gap:8px;flex:none}
 .entry-direct-form .btn-primary{padding:11px;margin-top:auto}
 .entry-direct-form .mail-btn-row{margin-top:0}
