@@ -534,11 +534,88 @@ app.get('/api/weather', async (req, res) => {
 });
 
 // AI — dual key support
+// 기본 응답 시스템 (API 키 없을 때)
+function getBasicResponse(message, tab, user) {
+  const msg = message.toLowerCase();
+  if (tab === 'work') {
+    const tc = { todo: 0, inprogress: 0, pending: 0, done: 0 };
+    db.getAll('tasks').forEach(t => { if (tc[t.status] !== undefined) tc[t.status]++; });
+    const total = tc.todo + tc.inprogress + tc.pending + tc.done;
+    const rate = total > 0 ? Math.round((tc.done / total) * 100) : 0;
+
+    if (msg.includes('현황') || msg.includes('상태') || msg.includes('요약') || msg.includes('리포트')) {
+      return `📊 현재 업무 현황입니다:\n• 전체: ${total}건\n• 대기: ${tc.todo}건\n• 진행 중: ${tc.inprogress}건\n• 승인 대기: ${tc.pending}건\n• 완료: ${tc.done}건\n• 완료율: ${rate}%\n\n${rate >= 70 ? '✅ 순조롭게 진행되고 있습니다!' : rate >= 40 ? '⚡ 진행 중인 업무에 집중해주세요.' : '🔥 대기 업무가 많습니다. 우선순위를 정리해보세요.'}`;
+    }
+    if (msg.includes('우선순위') || msg.includes('중요')) {
+      const highTasks = db.getAll('tasks').filter(t => t.priority === 'high' && t.status !== 'done');
+      return highTasks.length > 0
+        ? `🔴 높은 우선순위 업무 ${highTasks.length}건:\n${highTasks.map(t => `• ${t.title} (${t.status === 'todo' ? '대기' : '진행 중'})`).join('\n')}\n\n이 업무들을 먼저 처리하는 것을 권장합니다.`
+        : '✅ 현재 높은 우선순위 업무가 없습니다. 잘 관리하고 계시네요!';
+    }
+    if (msg.includes('지연') || msg.includes('마감') || msg.includes('기한')) {
+      const today = new Date().toISOString().split('T')[0];
+      const overdue = db.getAll('tasks').filter(t => t.due_date && t.due_date < today && t.status !== 'done');
+      return overdue.length > 0
+        ? `⚠️ 기한 초과 업무 ${overdue.length}건:\n${overdue.map(t => `• ${t.title} (마감: ${t.due_date})`).join('\n')}\n\n빠른 처리가 필요합니다.`
+        : '✅ 기한이 초과된 업무가 없습니다!';
+    }
+    if (msg.includes('팀') || msg.includes('팀원') || msg.includes('인원')) {
+      const users = db.getAll('users');
+      const online = users.filter(u => u.is_online);
+      return `👥 팀 현황:\n• 전체 인원: ${users.length}명\n• 현재 온라인: ${online.length}명\n${users.map(u => `• ${u.name} (${u.role === 'leader' ? '팀장' : '팀원'}) - ${u.is_online ? '🟢 온라인' : '⚫ 오프라인'}`).join('\n')}`;
+    }
+    if (msg.includes('결산') || msg.includes('수입') || msg.includes('지출') || msg.includes('재무')) {
+      const today = new Date().toISOString().split('T')[0];
+      const entries = db.getAll('finance_entries').filter(e => e.entry_date === today);
+      const income = entries.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+      const expense = entries.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+      return `💰 오늘의 결산 현황:\n• 수입: ${income.toLocaleString()}원\n• 지출: ${expense.toLocaleString()}원\n• 순이익: ${(income - expense).toLocaleString()}원\n• 입력 건수: ${entries.length}건`;
+    }
+    if (msg.includes('회의') || msg.includes('일정') || msg.includes('캘린더')) {
+      const events = db.getAll('calendar_events');
+      const upcoming = events.filter(e => e.date >= new Date().toISOString().split('T')[0]).slice(0, 5);
+      return upcoming.length > 0
+        ? `📅 다가오는 일정:\n${upcoming.map(e => `• ${e.date} - ${e.title} (${e.type === 'meeting' ? '회의' : e.type === 'deadline' ? '마감' : '이벤트'})`).join('\n')}`
+        : '📅 등록된 다가오는 일정이 없습니다.';
+    }
+    if (msg.includes('도움') || msg.includes('뭘 할 수') || msg.includes('기능') || msg.includes('안녕')) {
+      return `안녕하세요, ${user.name}님! 저는 업무 어시스턴트입니다. 다음과 같은 질문에 답변할 수 있어요:\n\n• "업무 현황 알려줘" — 전체 업무 요약\n• "우선순위 높은 업무" — 중요 업무 목록\n• "지연된 업무 있어?" — 마감 초과 확인\n• "팀 현황" — 팀원 상태\n• "오늘 결산" — 재무 현황\n• "다가오는 일정" — 캘린더 확인\n\n💡 API 키를 등록하면 더 자연스러운 대화가 가능합니다.`;
+    }
+    return `📋 "${message}"에 대해 기본 모드에서는 상세한 답변이 어렵습니다.\n\n다음 키워드로 질문해보세요:\n• 업무 현황 / 우선순위 / 지연 업무\n• 팀 현황 / 결산 현황 / 일정\n\n💡 프로필에서 Claude 또는 OpenAI API 키를 등록하면 자유로운 대화가 가능합니다.`;
+  } else {
+    // 법률 자문 탭
+    if (msg.includes('근로') || msg.includes('노동') || msg.includes('퇴직') || msg.includes('해고')) {
+      return '⚖️ 근로기준법 기본 안내:\n\n• 근로시간: 1주 40시간, 연장근로 포함 최대 52시간\n• 퇴직금: 1년 이상 근속 시 30일분 이상의 평균임금\n• 해고 예고: 30일 전 통보 또는 30일분 통상임금 지급\n• 연차 휴가: 1년 80% 이상 출근 시 15일\n\n⚠️ 이 정보는 일반적인 안내이며, 구체적인 사안은 전문 변호사 상담을 권장합니다.';
+    }
+    if (msg.includes('계약') || msg.includes('계약서')) {
+      return '📝 계약 관련 기본 안내:\n\n• 근로계약서: 임금, 근로시간, 휴일 등 반드시 명시\n• 계약 변경: 양 당사자 합의 필요\n• 수습 기간: 3개월 이내, 최저임금 90% 이상\n• 비밀유지 조항: 합리적 범위 내에서 유효\n\n⚠️ 구체적인 법률 검토는 전문가와 상담하세요.';
+    }
+    if (msg.includes('개인정보') || msg.includes('정보보호')) {
+      return '🔒 개인정보보호법 기본 안내:\n\n• 수집 시 동의 필수 (목적, 항목, 기간 고지)\n• 목적 외 이용·제3자 제공 시 별도 동의\n• 파기: 보유 기간 경과 시 지체 없이 파기\n• 위반 시 과태료 및 형사처벌 가능\n• 개인정보 처리방침 공개 의무\n\n⚠️ 정확한 법률 적용은 전문가와 상담하세요.';
+    }
+    if (msg.includes('저작권') || msg.includes('지적재산') || msg.includes('특허')) {
+      return '©️ 지적재산권 기본 안내:\n\n• 저작권: 창작과 동시에 발생 (등록 불요)\n• 특허: 출원 후 심사를 거쳐 등록\n• 상표: 10년 단위 갱신 가능\n• 업무상 저작물: 회사 명의로 공표 시 회사가 저작자\n• 소프트웨어: 저작권법으로 보호\n\n⚠️ 구체적인 권리 분쟁은 전문가와 상담하세요.';
+    }
+    if (msg.includes('세금') || msg.includes('세무') || msg.includes('부가세') || msg.includes('소득세')) {
+      return '💵 세무 기본 안내:\n\n• 부가가치세: 매출세액 - 매입세액 (분기별 신고)\n• 법인세: 사업연도 종료 후 3개월 내 신고\n• 원천징수: 급여 지급 시 소득세 원천징수 의무\n• 4대 보험: 국민연금, 건강보험, 고용보험, 산재보험\n\n⚠️ 정확한 세무 처리는 세무사와 상담하세요.';
+    }
+    if (msg.includes('도움') || msg.includes('뭘 할 수') || msg.includes('기능') || msg.includes('안녕')) {
+      return '안녕하세요! 법률 자문 어시스턴트입니다. 다음 분야에 대해 기본 안내를 제공합니다:\n\n• "근로기준법" — 근로시간, 퇴직금, 해고\n• "계약 관련" — 근로계약서, 수습 기간\n• "개인정보보호" — 수집·이용·파기 규정\n• "저작권" — 지적재산권 기본\n• "세금/세무" — 부가세, 법인세 기본\n\n💡 API 키를 등록하면 더 상세한 법률 상담이 가능합니다.';
+    }
+    return `⚖️ "${message}"에 대해 기본 모드에서는 상세한 답변이 어렵습니다.\n\n다음 키워드로 질문해보세요:\n• 근로기준법 / 계약 / 개인정보보호\n• 저작권 / 세금·세무\n\n💡 API 키를 등록하면 자유로운 법률 상담이 가능합니다.';
+  }
+}
+
 app.post('/api/ai/chat', requireAuth, async (req, res) => {
   const user = getUser(req);
   const { message, tab, provider } = req.body;
   const apiKey = provider === 'openai' ? user.openai_api_key : user.claude_api_key;
-  if (!apiKey) return res.status(400).json({ error: '해당 API 키를 먼저 등록해주세요' });
+
+  // API 키 없으면 기본 응답 시스템 사용
+  if (!apiKey) {
+    const reply = getBasicResponse(message, tab, user);
+    return res.json({ reply, basic: true });
+  }
 
   let systemPrompt;
   if (tab === 'work') {

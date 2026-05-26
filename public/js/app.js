@@ -1274,14 +1274,30 @@ function toggleAIPopup() {
 
 function updateAIKeyState() {
   const hasKey = currentAIProvider === 'claude' ? currentUser.hasClaudeKey : currentUser.hasOpenaiKey;
-  document.getElementById('ai-no-key').style.display = hasKey ? 'none' : 'flex';
-  document.getElementById('ai-input-area').style.display = hasKey ? 'flex' : 'none';
-  document.getElementById('ai-messages').style.display = hasKey ? 'flex' : 'none';
+  document.getElementById('ai-no-key').style.display = 'none';
+  document.getElementById('ai-input-area').style.display = 'flex';
+  document.getElementById('ai-messages').style.display = 'flex';
 
   // Update provider button states
   document.querySelectorAll('.ai-prov-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.prov === currentAIProvider);
   });
+
+  // 기본 모드 배지 표시
+  let badge = document.getElementById('ai-basic-badge');
+  if (!hasKey) {
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'ai-basic-badge';
+      badge.style.cssText = 'text-align:center;padding:4px 8px;background:rgba(245,158,11,0.1);color:#F59E0B;font-size:11px;border-radius:6px;margin:0 12px 4px';
+      badge.textContent = '⚡ 기본 모드 · 키워드 기반 응답';
+      const msgs = document.getElementById('ai-messages');
+      msgs.parentNode.insertBefore(badge, msgs);
+    }
+    badge.style.display = 'block';
+  } else if (badge) {
+    badge.style.display = 'none';
+  }
 }
 
 function switchAITab(tab) {
@@ -1324,7 +1340,7 @@ async function sendAIMessage() {
     if (data.error) {
       msgs.innerHTML += `<div class="ai-msg ai-bot" style="color:#FF5C5C">${escapeHtml(data.error)}</div>`;
     } else {
-      msgs.innerHTML += `<div class="ai-msg ai-bot">${escapeHtml(data.reply)}</div>`;
+      msgs.innerHTML += `<div class="ai-msg ai-bot">${escapeHtml(data.reply).replace(/\n/g, '<br>')}</div>`;
     }
   } catch {
     const loading = document.getElementById('ai-loading');
