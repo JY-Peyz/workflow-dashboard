@@ -1396,6 +1396,8 @@ async function saveProfile() {
   closeModal('modal-profile');
   loadWeather();
   loadUsers();
+  loadTasks();
+  loadKPI();
   showToast('프로필이 저장되었습니다');
 }
 
