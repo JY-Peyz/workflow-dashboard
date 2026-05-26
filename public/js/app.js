@@ -392,8 +392,7 @@ async function loadUsers() {
 function renderTeamList(stats) {
   const container = document.getElementById('team-list');
   const data = stats || allUsers;
-  const display = data.slice(0, 5);
-  container.innerHTML = display.map(u => {
+  container.innerHTML = data.map(u => {
     const taskLine = u.currentTask
       ? `<div class="team-task">${escapeHtml(u.currentTask)}</div>`
       : `<div class="team-task no-task">배정된 업무 없음</div>`;
@@ -1381,6 +1380,21 @@ async function saveProfile() {
 async function logout() {
   await fetch('/auth/logout', { method: 'POST' });
   window.location.href = '/login.html';
+}
+
+async function deleteAccount() {
+  if (!confirm('정말 계정을 탈퇴하시겠습니까?\n모든 데이터가 삭제되며 복구할 수 없습니다.')) return;
+  if (!confirm('한 번 더 확인합니다. 계정을 완전히 삭제하시겠습니까?')) return;
+  try {
+    const resp = await fetch('/auth/account', { method: 'DELETE' });
+    const result = await resp.json();
+    if (result.ok) {
+      alert('계정이 삭제되었습니다. 다시 로그인하면 새 계정으로 시작합니다.');
+      window.location.href = '/login.html';
+    } else {
+      showToast(result.error || '탈퇴에 실패했습니다');
+    }
+  } catch { showToast('탈퇴 처리 중 오류가 발생했습니다'); }
 }
 
 // ── Theme ────────────────────────────────────────

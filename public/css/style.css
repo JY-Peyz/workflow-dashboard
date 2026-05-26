@@ -29,6 +29,9 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .dropdown-divider{height:1px;background:var(--border);margin:4px 0}
 .profile-dropdown button{width:100%;padding:10px 12px;background:none;border:none;text-align:left;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;color:var(--text);transition:background .15s}
 .profile-dropdown button:hover{background:var(--input-bg)}
+.profile-dropdown button.btn-delete-account{color:#FF5C5C}
+.profile-dropdown button.btn-delete-account:hover{background:rgba(255,92,92,0.08)}
+.team-list::-webkit-scrollbar{width:4px}.team-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 /* === Grid === */
 .dashboard-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:20px;padding:20px;height:calc(100vh - 56px)}
@@ -73,7 +76,7 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .kanban-mini-add:hover{border-color:var(--accent);color:var(--accent)}
 
 /* === Team === */
-.team-list{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:0}
+.team-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0;min-height:0}
 .team-member{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s}
 .team-member:nth-child(odd){background:rgba(128,128,128,0.04)}
 .team-member:hover{background:var(--input-bg)}
@@ -169,12 +172,12 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .entry-tab.active{background:var(--accent);border-color:var(--accent);color:white}
 .entry-content{flex:1;overflow-y:auto;min-height:0}
 .form-row{display:flex;gap:10px}
-.form-group{flex:1;display:flex;flex-direction:column;margin-bottom:8px}
+.form-group{flex:1;display:flex;flex-direction:column;margin-bottom:5px}
 .form-group label{font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
-.form-group input,.form-group select,.form-group textarea{padding:8px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s}
+.form-group input,.form-group select,.form-group textarea{padding:6px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--text);font-family:inherit;outline:none;transition:border .2s}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
 .form-group textarea{resize:none}
-.btn-primary{width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.btn-primary{width:100%;padding:8px;background:var(--accent);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s}
 .btn-primary:hover{opacity:0.9}
 .btn-secondary{width:100%;padding:10px;background:rgba(79,106,255,0.1);color:var(--accent);border:1px solid var(--accent);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .btn-danger{width:100%;padding:10px;background:#FF5C5C;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
@@ -417,7 +420,7 @@ html,body{height:100vh;overflow:hidden;font-family:'Pretendard','Inter',-apple-s
 .ai-input-area button{width:38px;height:38px;background:var(--accent);border:none;border-radius:10px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
 /* === Profile Setup === */
-.profile-setup-desc{font-size:13px;color:var(--text-secondary);margin-bottom:12px;padding:10px 14px;background:rgba(79,106,255,0.06);border-radius:8px;border-left:3px solid var(--accent)}
+.profile-setup-desc{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--accent);margin-bottom:14px;padding:10px 14px;background:linear-gradient(135deg,rgba(79,106,255,0.08),rgba(124,58,237,0.06));border-radius:10px;border:1px solid rgba(79,106,255,0.15);line-height:1.5}
 
 /* === API Key Status === */
 .api-keys-section{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}

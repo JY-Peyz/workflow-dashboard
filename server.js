@@ -2,8 +2,7 @@ require('dotenv').config();
 console.log('ENV CHECK:', {
   GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: !!process.env.GOOGLE_CLIENT_SECRET,
-  SMTP_USER: !!process.env.SMTP_USER,
-  SMTP_PASS: !!process.env.SMTP_PASS
+  RESEND_API_KEY: !!process.env.RESEND_API_KEY
 });
 const express = require('express');
 const session = require('express-session');
@@ -13,25 +12,17 @@ const { Server } = require('socket.io');
 const http = require('http');
 const multer = require('multer');
 const XLSX = require('xlsx');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const path = require('path');
 const { db, init } = require('./db');
 
-// SMTP 메일 트랜스포터 설정
-let mailTransporter = null;
-if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-  mailTransporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-  });
-  mailTransporter.verify((err) => {
-    if (err) console.error('SMTP 연결 실패:', err.message);
-    else console.log('✅ SMTP 메일 서버 연결 성공');
-  });
+// Resend 메일 서비스 설정
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+  console.log('✅ Resend 메일 서비스 연결 완료');
 } else {
-  console.warn('⚠️  SMTP 설정 없음 — 메일 발송 기능 비활성화 (SMTP_USER, SMTP_PASS 필요)');
+  console.warn('⚠️  RESEND_API_KEY 없음 — 메일 발송 기능 비활성화');
 }
 
 init();
@@ -72,6 +63,10 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         role: 'member', region: '서울', phone: '', claude_api_key: '', openai_api_key: '', is_online: 1,
         profile_completed: false
       });
+    } else {
+      // 기존 유저: 온라인 상태만 업데이트 (프로필 데이터 유지)
+      db.update('users', user.id, { is_online: 1 });
+      user = db.getById('users', user.id);
     }
     done(null, user);
   }));
@@ -103,6 +98,25 @@ app.post('/auth/logout', (req, res) => {
   const user = getUser(req);
   if (user) { db.update('users', user.id, { is_online: 0 }); io.emit('user-status', { userId: user.id, online: false }); }
   req.session.destroy(() => {});
+  res.json({ ok: true });
+});
+
+// 계정 탈퇴 (본인 데이터 모두 삭제)
+app.delete('/auth/account', requireAuth, (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const uid = user.id;
+  // 관련 데이터 삭제
+  db.find('tasks', t => t.assignee_id === uid || t.creator_id === uid).forEach(t => db.delete('tasks', t.id));
+  db.find('messages', m => m.user_id === uid).forEach(m => db.delete('messages', m.id));
+  db.find('finance_entries', f => f.user_id === uid).forEach(f => db.delete('finance_entries', f.id));
+  db.find('sticky_notes', n => n.user_id === uid).forEach(n => db.delete('sticky_notes', n.id));
+  db.find('calendar_events', e => e.creator_id === uid).forEach(e => db.delete('calendar_events', e.id));
+  db.find('upload_history', h => h.user_id === uid).forEach(h => db.delete('upload_history', h.id));
+  db.delete('users', uid);
+  io.emit('user-status', { userId: uid, online: false });
+  req.session.destroy(() => {});
+  console.log(`🗑️ 계정 탈퇴: ${user.name} (${user.email})`);
   res.json({ ok: true });
 });
 
@@ -722,17 +736,17 @@ app.post('/api/finance/send-report', requireAuth, async (req, res) => {
   if (user.role !== 'leader') return res.status(403).json({ error: '팀장 전용' });
   const data = buildReportData(user);
 
-  if (!mailTransporter) {
-    console.log('=== 일일 결산 리포트 (SMTP 미설정) ===\n', data.subject);
-    return res.json({ ok: true, message: 'SMTP 설정이 없어 메일 발송이 불가합니다. .env 파일에 SMTP 설정을 추가해주세요.', report: data.report, sent: false });
+  if (!resend) {
+    console.log('=== 일일 결산 리포트 (Resend 미설정) ===\n', data.subject);
+    return res.json({ ok: true, message: 'RESEND_API_KEY가 설정되지 않아 메일 발송이 불가합니다.', report: data.report, sent: false });
   }
 
   try {
-    await mailTransporter.sendMail({
-      from: `"WorkFlow 대시보드" <${process.env.SMTP_USER}>`,
-      to: data.to,
+    const fromAddr = process.env.RESEND_FROM || 'WorkFlow <onboarding@resend.dev>';
+    await resend.emails.send({
+      from: fromAddr,
+      to: [data.to],
       subject: data.subject,
-      text: data.textBody,
       html: data.html
     });
     console.log(`✅ 결산 리포트 발송 완료 → ${data.to}`);
@@ -745,11 +759,31 @@ app.post('/api/finance/send-report', requireAuth, async (req, res) => {
 
 // Avatar SVG
 app.get('/avatars/:id', (req, res) => {
-  const colors = ['#4F6AFF', '#22D3A7', '#FF5C5C', '#F59E0B', '#8B5CF6'];
-  const names = ['SK', 'DL', 'JP', 'MJ', 'OC'];
-  const id = parseInt(req.params.id) - 1;
+  const colors = ['#4F6AFF', '#22D3A7', '#FF5C5C', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
+  const id = parseInt(req.params.id);
+  const user = db.getById('users', id);
+  let initials = '?';
+  if (user && user.name) {
+    const name = user.name.trim();
+    // 한국어 이름: 첫 글자 사용 (예: 이준엽 → 이)
+    // 영어 이름: 첫글자 + 성 첫글자 (예: Jun Yeop Lee → JL, Sarah Kim → SK)
+    const isKorean = /[가-힣]/.test(name);
+    if (isKorean) {
+      initials = name.charAt(0);
+    } else {
+      const parts = name.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        initials = (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+      } else {
+        initials = name.substring(0, 2).toUpperCase();
+      }
+    }
+  }
+  const color = colors[(id - 1) % colors.length];
+  const fontSize = initials.length === 1 ? 28 : 22;
   res.setHeader('Content-Type', 'image/svg+xml');
-  res.send(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="40" fill="${colors[id%5]}"/><text x="40" y="45" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="Inter,sans-serif" font-size="24" font-weight="600">${names[id%5]}</text></svg>`);
+  res.setHeader('Cache-Control', 'no-cache');
+  res.send(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="40" fill="${color}"/><text x="40" y="45" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="'Pretendard','Inter',sans-serif" font-size="${fontSize}" font-weight="600">${initials}</text></svg>`);
 });
 
 // Socket.io
