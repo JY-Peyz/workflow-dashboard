@@ -441,6 +441,25 @@ body.is-leader .kanban-mini-add.leader-only{display:block}
 body.is-leader .btn-secondary.leader-only{display:block}
 body.is-leader .cal-day-assign.leader-only{display:block}
 
+/* === Skeleton Loading === */
+.skeleton{position:relative;overflow:hidden;background:var(--input-bg);border-radius:8px}
+.skeleton::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 1.5s infinite}
+[data-theme="dark"] .skeleton::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent)}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.skeleton-line{height:12px;margin-bottom:8px}
+.skeleton-line.w60{width:60%}
+.skeleton-line.w80{width:80%}
+.skeleton-line.w40{width:40%}
+.skeleton-circle{width:34px;height:34px;border-radius:50%}
+.skeleton-card{height:48px;margin-bottom:6px;border-radius:8px}
+.skeleton-bar{height:100%;border-radius:4px}
+.skeleton-row{display:flex;align-items:center;gap:10px;padding:8px 10px}
+
+/* === Kanban Mini Drag === */
+.kanban-mini-card[draggable="true"]{cursor:grab}
+.kanban-mini-card[draggable="true"]:active{cursor:grabbing;opacity:0.7}
+.kanban-mini-col.drag-over{background:rgba(79,106,255,0.06);outline:2px dashed var(--accent);outline-offset:-2px;border-radius:8px}
+
 /* === Toast === */
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--text);color:var(--bg);padding:12px 24px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:1000;transition:transform .3s}
 .toast.show{transform:translateX(-50%) translateY(0)}

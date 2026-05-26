@@ -190,14 +190,17 @@ function renderMiniKanban() {
   grid.innerHTML = cols.map(col => {
     const items = groups[col.key].slice(0, 3);
     return `
-      <div class="kanban-mini-col">
+      <div class="kanban-mini-col"
+           ondragover="event.preventDefault();event.stopPropagation();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="event.stopPropagation();dropMiniTask(event,'${col.key}')">
         <div class="kanban-mini-col-header">
           <span>${col.label}</span>
           <span class="kanban-count">${groups[col.key].length}</span>
         </div>
         <div class="kanban-mini-items">
           ${items.map(t => `
-            <div class="kanban-mini-card">
+            <div class="kanban-mini-card" draggable="true" ondragstart="event.stopPropagation();dragTask(event,${t.id})">
               <div class="kanban-card-title">${escapeHtml(t.title)}</div>
               <div class="kanban-card-priority">
                 <span class="priority-dot priority-${t.priority}"></span>
@@ -285,6 +288,22 @@ function renderFullKanbanCard(t) {
 
 function dragTask(e, taskId) {
   e.dataTransfer.setData('taskId', taskId);
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+async function dropMiniTask(e, newStatus) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const taskId = e.dataTransfer.getData('taskId');
+  if (!taskId) return;
+  await fetch(`/api/tasks/${taskId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: newStatus })
+  });
+  await loadTasks();
+  await loadKPI();
+  showToast('업무 상태가 변경되었습니다');
 }
 
 async function dropTask(e, newStatus) {

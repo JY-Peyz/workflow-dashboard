@@ -61,13 +61,21 @@
     <!-- Card 2: 칸반 -->
     <div class="card" id="card-kanban" onclick="openKanbanModal()">
       <div class="card-header"><h3>업무 관리</h3></div>
-      <div class="kanban-mini" id="kanban-mini-grid"></div>
+      <div class="kanban-mini" id="kanban-mini-grid">
+        <div class="kanban-mini-col"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+        <div class="kanban-mini-col"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+        <div class="kanban-mini-col"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+      </div>
     </div>
 
     <!-- Card 3: 팀 현황 -->
     <div class="card" id="card-team">
       <div class="card-header"><h3>팀 현황</h3></div>
-      <div class="team-list" id="team-list"></div>
+      <div class="team-list" id="team-list">
+        <div class="skeleton-row"><div class="skeleton skeleton-circle"></div><div style="flex:1"><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w40"></div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-circle"></div><div style="flex:1"><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w40"></div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-circle"></div><div style="flex:1"><div class="skeleton skeleton-line w80"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      </div>
       <button class="view-all-link" onclick="openTeamModal()">전체 팀원 보기 ›</button>
     </div>
 
@@ -77,7 +85,10 @@
         <h3>팀 채팅</h3>
         <span class="online-count-badge" id="online-count">0명 온라인</span>
       </div>
-      <div class="chat-preview" id="chat-preview"></div>
+      <div class="chat-preview" id="chat-preview">
+        <div class="skeleton-row"><div class="skeleton skeleton-circle"></div><div style="flex:1"><div class="skeleton skeleton-line w60"></div><div class="skeleton skeleton-line w80"></div></div></div>
+        <div class="skeleton-row"><div class="skeleton skeleton-circle"></div><div style="flex:1"><div class="skeleton skeleton-line w40"></div><div class="skeleton skeleton-line w60"></div></div></div>
+      </div>
       <div class="chat-input-mini" onclick="event.stopPropagation()">
         <input type="text" id="chat-input-mini" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendMiniChat()">
         <button onclick="sendMiniChat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
