@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>업무 종합 대시보드</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="header-logo">W</div>
+      <span class="header-title">WorkFlow</span>
+    </div>
+    <div class="header-center" id="header-datetime"></div>
+    <div class="header-right">
+      <button class="header-btn btn-ai-glow" id="btn-ai" title="AI 어시스턴트">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M20 3l.7 2.3L23 6l-2.3.7L20 9l-.7-2.3L17 6l2.3-.7z" stroke-width="1.5"/><path d="M4 17l.7 2.3L7 20l-2.3.7L4 23l-.7-2.3L1 20l2.3-.7z" stroke-width="1.5"/></svg>
+      </button>
+      <button class="header-btn" id="btn-notifications" title="알림">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="header-btn theme-toggle" id="btn-theme" title="테마 전환">
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div class="profile-wrapper">
+        <button class="header-avatar" id="btn-profile"><img id="header-avatar-img" src="/avatars/1" alt=""></button>
+        <div class="profile-dropdown" id="profile-dropdown">
+          <div class="dropdown-user-info"><strong id="dropdown-name">사용자</strong><span id="dropdown-role" class="dropdown-role">팀원</span></div>
+          <div class="dropdown-divider"></div>
+          <button onclick="openProfileModal()">프로필 수정</button>
+          <button onclick="logout()">로그아웃</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Grid -->
+  <main class="dashboard-grid">
+    <!-- Card 1: KPI -->
+    <div class="card" id="card-kpi">
+      <div class="card-header"><h3>업무 현황 요약</h3></div>
+      <div class="kpi-grid">
+        <div class="kpi-item"><div class="kpi-icon kpi-icon-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="kpi-text"><span class="kpi-label">전체 업무</span><span class="kpi-value" id="kpi-total">0</span><span class="kpi-change up" id="kpi-total-change">↑ 12.5% 전월 대비</span></div></div>
+        <div class="kpi-item"><div class="kpi-icon kpi-icon-blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="kpi-text"><span class="kpi-label">진행 중</span><span class="kpi-value" id="kpi-progress">0</span><span class="kpi-change up" id="kpi-progress-change">↑ 8.7% 전월 대비</span></div></div>
+        <div class="kpi-item"><div class="kpi-icon kpi-icon-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="kpi-text"><span class="kpi-label">완료</span><span class="kpi-value" id="kpi-done">0</span><span class="kpi-change up" id="kpi-done-change">↑ 5.4% 전월 대비</span></div></div>
+        <div class="kpi-item"><div class="kpi-icon" id="kpi-overdue-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="kpi-text"><span class="kpi-label">지연</span><span class="kpi-value" id="kpi-overdue">0</span><span class="kpi-change" id="kpi-overdue-change">전월 대비</span></div></div>
+      </div>
+      <div class="kpi-progress-section">
+        <div class="kpi-progress-header"><span>전체 진행률</span><span id="kpi-rate">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="kpi-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Card 2: 칸반 -->
+    <div class="card" id="card-kanban" onclick="openKanbanModal()">
+      <div class="card-header"><h3>업무 관리</h3></div>
+      <div class="kanban-mini" id="kanban-mini-grid"></div>
+    </div>
+
+    <!-- Card 3: 팀 현황 -->
+    <div class="card" id="card-team">
+      <div class="card-header"><h3>팀 현황</h3></div>
+      <div class="team-list" id="team-list"></div>
+      <button class="view-all-link" onclick="openTeamModal()">전체 팀원 보기 ›</button>
+    </div>
+
+    <!-- Card 4: 채팅 -->
+    <div class="card" id="card-chat" onclick="openChatPanel()">
+      <div class="card-header">
+        <h3>팀 채팅</h3>
+        <span class="online-count-badge" id="online-count">0명 온라인</span>
+      </div>
+      <div class="chat-preview" id="chat-preview"></div>
+      <div class="chat-input-mini" onclick="event.stopPropagation()">
+        <input type="text" id="chat-input-mini" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendMiniChat()">
+        <button onclick="sendMiniChat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Card 5: 결산 차트 -->
+    <div class="card" id="card-finance">
+      <div class="card-header"><h3>결산 차트</h3></div>
+      <div class="finance-tabs">
+        <button class="fin-tab" data-period="day">일간</button>
+        <button class="fin-tab active" data-period="week">주간</button>
+        <button class="fin-tab" data-period="month">월간</button>
+        <button class="fin-tab" data-period="quarter">분기</button>
+        <button class="fin-tab" data-period="year">연간</button>
+      </div>
+      <div class="chart-container"><canvas id="finance-chart"></canvas><div class="chart-empty" id="chart-empty" style="display:none">해당 기간에 입력된 데이터가 없습니다</div></div>
+      <div class="finance-summary">
+        <div class="fin-summary-item"><span class="fin-label">총 수입</span><div class="fin-value-row"><span class="fin-value" id="fin-income">₩0</span><span class="fin-change up" id="fin-income-change">↑ 0%</span></div></div>
+        <div class="fin-summary-item"><span class="fin-label">총 지출</span><div class="fin-value-row"><span class="fin-value" id="fin-expense">₩0</span><span class="fin-change" id="fin-expense-change">↑ 0%</span></div></div>
+        <div class="fin-summary-item"><span class="fin-label">순이익</span><div class="fin-value-row"><span class="fin-value fin-net" id="fin-net">₩0</span></div></div>
+      </div>
+    </div>
+
+    <!-- Card 6: 결산 입력 -->
+    <div class="card" id="card-entry">
+      <div class="card-header"><h3>결산 입력</h3></div>
+      <div class="entry-tabs">
+        <button class="entry-tab active" onclick="switchEntryTab('direct')">직접 입력</button>
+        <button class="entry-tab" onclick="switchEntryTab('upload')">파일 업로드</button>
+        <button class="entry-tab" onclick="switchEntryTab('today')">오늘 내역</button>
+      </div>
+      <div class="entry-content" id="entry-direct">
+        <div class="form-row">
+          <div class="form-group"><label>담당자</label><input type="text" id="entry-owner" readonly></div>
+          <div class="form-group"><label>날짜</label><input type="date" id="entry-date"></div>
+        </div>
+        <div class="form-group"><label>업무/항목명</label><input type="text" id="entry-name" placeholder="예: 외주 디자인 비용"></div>
+        <div class="form-row">
+          <div class="form-group"><label>카테고리</label><div class="custom-select" data-target="entry-category"><span class="cs-label">인건비</span><input type="hidden" id="entry-category" value="인건비"><div class="cs-options"><div class="cs-option" data-value="인건비">인건비</div><div class="cs-option" data-value="외주비">외주비</div><div class="cs-option" data-value="재료비">재료비</div><div class="cs-option" data-value="마케팅비">마케팅비</div><div class="cs-option" data-value="기타">기타</div></div></div></div>
+          <div class="form-group"><label>금액 (₩)</label><input type="number" id="entry-amount" placeholder="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>유형</label><div class="custom-select" data-target="entry-type"><span class="cs-label">수입</span><input type="hidden" id="entry-type" value="income"><div class="cs-options"><div class="cs-option" data-value="income">수입</div><div class="cs-option" data-value="expense">지출</div></div></div></div>
+          <div class="form-group"><label>비고</label><input type="text" id="entry-memo" placeholder="선택 입력"></div>
+        </div>
+        <button class="btn-primary" onclick="saveFinanceEntry()">저장</button>
+        <div class="mail-btn-row leader-only" style="display:flex;gap:6px;margin-top:6px">
+          <button class="btn-secondary" onclick="previewReportEmail()" style="flex:1">미리보기</button>
+          <button class="btn-primary" onclick="sendSettlementEmail()" style="flex:1">메일 발송</button>
+        </div>
+      </div>
+      <div class="entry-content" id="entry-upload" style="display:none">
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p>엑셀/CSV 파일을 드래그하거나 클릭</p>
+          <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadFile(this)">
+        </div>
+        <div class="upload-history" id="upload-history"><p class="upload-empty">아직 업로드된 파일이 없습니다</p></div>
+      </div>
+      <div class="entry-content" id="entry-today" style="display:none">
+        <div class="today-entries-list" id="today-entries-list"><p class="upload-empty">오늘 입력된 내역이 없습니다</p></div>
+      </div>
+      <div class="entry-footer"><span>오늘 입력: <strong id="entry-today-count">0</strong>건</span></div>
+    </div>
+
+    <!-- Card 7: 포스트잇 -->
+    <div class="card" id="card-sticky" onclick="openStickyModal()">
+      <div class="card-header"><h3>포스트잇 보드</h3><span class="more-badge" id="sticky-more" style="display:none"></span></div>
+      <div class="sticky-mini-grid" id="sticky-mini-grid"></div>
+    </div>
+
+    <!-- Card 8: 캘린더 -->
+    <div class="card" id="card-calendar">
+      <div class="card-header"><h3>미니 캘린더</h3><div class="cal-nav"><button onclick="changeMonth(-1)">&lt;</button><span id="cal-month-label"></span><button onclick="changeMonth(1)">&gt;</button></div></div>
+      <div class="calendar-grid" id="calendar-grid"></div>
+      <div class="cal-legend"><span><i class="dot dot-meeting"></i> 회의</span><span><i class="dot dot-deadline"></i> 마감</span><span><i class="dot dot-event"></i> 이벤트</span></div>
+    </div>
+  </main>
+
+  <!-- Kanban Modal -->
+  <div class="modal-overlay" id="modal-kanban">
+    <div class="modal-content modal-large">
+      <div class="modal-header"><h2>업무 관리 — 칸반 보드</h2><button class="modal-close" onclick="closeModal('modal-kanban')">&times;</button></div>
+      <div class="kanban-full" id="kanban-full"></div>
+      <button class="btn-primary leader-only" onclick="openAddTaskModal()" style="margin-top:16px;max-width:200px">+ 새 업무 추가</button>
+    </div>
+  </div>
+
+  <!-- Add Task Modal -->
+  <div class="modal-overlay" id="modal-add-task">
+    <div class="modal-content modal-small">
+      <div class="modal-header"><h2>새 업무 추가</h2><button class="modal-close" onclick="closeModal('modal-add-task')">&times;</button></div>
+      <div class="form-group"><label>제목</label><input type="text" id="task-title"></div>
+      <div class="form-group"><label>설명</label><textarea id="task-desc" rows="3"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>우선순위</label><div class="custom-select" data-target="task-priority"><span class="cs-label">보통</span><input type="hidden" id="task-priority" value="medium"><div class="cs-options"><div class="cs-option" data-value="high">높음</div><div class="cs-option" data-value="medium">보통</div><div class="cs-option" data-value="low">낮음</div></div></div></div>
+        <div class="form-group"><label>담당자</label><select id="task-assignee"></select></div>
+      </div>
+      <div class="form-group"><label>마감일</label><input type="date" id="task-due"></div>
+      <button class="btn-primary" onclick="createTask()" style="margin-top:12px">업무 생성</button>
+    </div>
+  </div>
+
+  <!-- Chat Panel Backdrop -->
+  <div class="chat-backdrop" id="chat-backdrop" onclick="if(!document.querySelector('.modal-overlay.show'))closeChatPanel()"></div>
+  <!-- Chat Panel -->
+  <div class="slide-panel" id="panel-chat">
+    <div class="panel-header"><h2>팀 채팅</h2><div class="online-users" id="chat-online-users"></div><button class="modal-close" onclick="closeChatPanel()">&times;</button></div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-full">
+      <input type="text" id="chat-input-full" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendFullChat()">
+      <button onclick="sendFullChat()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Message Delete Confirm Modal -->
+  <div class="modal-overlay" id="modal-delete-msg">
+    <div class="modal-content modal-small" style="text-align:center">
+      <div class="modal-header"><h2>메시지 삭제</h2><button class="modal-close" onclick="closeModal('modal-delete-msg')">&times;</button></div>
+      <p style="margin:16px 0;color:var(--text-secondary)">이 메시지를 삭제하시겠습니까?<br>삭제된 메시지는 복구할 수 없습니다.</p>
+      <div style="display:flex;gap:10px"><button class="btn-secondary" onclick="closeModal('modal-delete-msg')" style="flex:1">취소</button><button class="btn-danger" onclick="confirmDeleteMessage()" style="flex:1">삭제</button></div>
+    </div>
+  </div>
+
+  <!-- Sticky Modal -->
+  <div class="modal-overlay" id="modal-sticky">
+    <div class="modal-content modal-large">
+      <div class="modal-header"><h2>포스트잇 보드</h2><button class="modal-close" onclick="closeModal('modal-sticky')">&times;</button></div>
+      <div class="sticky-full-grid" id="sticky-full-grid"></div>
+      <div class="sticky-actions">
+        <div class="custom-select cs-small" data-target="new-note-color"><span class="cs-label">노랑</span><input type="hidden" id="new-note-color" value="yellow"><div class="cs-options"><div class="cs-option" data-value="yellow">노랑</div><div class="cs-option" data-value="pink">분홍</div><div class="cs-option" data-value="green">연두</div><div class="cs-option" data-value="blue">하늘</div></div></div>
+        <input type="text" id="new-note-text" placeholder="새 메모 입력...">
+        <button class="btn-primary" onclick="addStickyNote()" style="width:auto;padding:10px 24px">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Day Modal -->
+  <div class="modal-overlay" id="modal-cal-day">
+    <div class="modal-content modal-small">
+      <div class="modal-header"><h2 id="cal-day-title"></h2><button class="modal-close" onclick="closeModal('modal-cal-day')">&times;</button></div>
+      <div class="cal-day-list" id="cal-day-content"></div>
+      <div class="cal-day-add">
+        <h4>일정 추가</h4>
+        <div class="cal-add-form">
+          <input type="text" id="cal-event-title" placeholder="일정 제목 입력...">
+          <span class="cal-sep"></span>
+          <select class="cal-type-sel" id="cal-event-type"><option value="meeting">회의</option><option value="deadline">마감</option><option value="event">이벤트</option></select>
+          <button class="cal-submit" onclick="addCalendarEvent()">추가</button>
+        </div>
+      </div>
+      <div class="leader-only cal-day-assign" id="cal-day-assign">
+        <h4>업무 할당</h4>
+        <div class="cal-add-form">
+          <input type="text" id="cal-task-title" placeholder="업무 제목 입력...">
+          <span class="cal-sep"></span>
+          <select class="cal-type-sel" id="cal-task-assignee"></select>
+          <span class="cal-sep"></span>
+          <select class="cal-type-sel" id="cal-task-priority"><option value="medium">보통</option><option value="high">높음</option><option value="low">낮음</option></select>
+          <button class="cal-submit" onclick="assignTaskFromCal()">할당</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="modal-profile">
+    <div class="modal-content modal-small">
+      <div class="modal-header"><h2 id="profile-modal-title">프로필 수정</h2><button class="modal-close" onclick="closeModal('modal-profile')">&times;</button></div>
+      <p class="profile-setup-desc" id="profile-setup-desc" style="display:none">팀 협업을 위해 프로필 정보를 입력해주세요.</p>
+      <div class="form-group"><label>이름</label><input type="text" id="profile-name"></div>
+      <div class="form-row">
+        <div class="form-group"><label>이메일</label><input type="email" id="profile-email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>전화번호</label><input type="tel" id="profile-phone" placeholder="010-0000-0000"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>직책</label><div class="custom-select" data-target="profile-role"><span class="cs-label">팀원</span><input type="hidden" id="profile-role" value="member"><div class="cs-options"><div class="cs-option" data-value="leader">팀장</div><div class="cs-option" data-value="member">팀원</div></div></div></div>
+        <div class="form-group"><label>지역</label><div class="custom-select" data-target="profile-region"><span class="cs-label">서울</span><input type="hidden" id="profile-region" value="서울"><div class="cs-options"><div class="cs-option" data-value="서울">서울</div><div class="cs-option" data-value="부산">부산</div><div class="cs-option" data-value="대구">대구</div><div class="cs-option" data-value="인천">인천</div><div class="cs-option" data-value="광주">광주</div><div class="cs-option" data-value="대전">대전</div><div class="cs-option" data-value="제주">제주</div></div></div></div>
+      </div>
+      <div class="api-keys-section">
+        <h4>API 키 설정</h4>
+        <div class="form-group"><label>Claude API 키 <span class="key-status" id="claude-key-status">●</span></label><input type="password" id="profile-claude-key" placeholder="sk-ant-..."></div>
+        <div class="form-group"><label>OpenAI API 키 <span class="key-status" id="openai-key-status">●</span></label><input type="password" id="profile-openai-key" placeholder="sk-..."></div>
+      </div>
+      <button class="btn-primary" onclick="saveProfile()" style="margin-top:12px">저장</button>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="modal-delete-confirm">
+    <div class="modal-content modal-small" style="text-align:center">
+      <div class="modal-header"><h2>삭제 확인</h2><button class="modal-close" onclick="closeModal('modal-delete-confirm')">&times;</button></div>
+      <p style="margin:16px 0;color:var(--text-secondary)">이 업무를 삭제하시겠습니까?<br>관련 일정도 함께 삭제됩니다.</p>
+      <div style="display:flex;gap:10px"><button class="btn-secondary" onclick="closeModal('modal-delete-confirm')" style="flex:1">취소</button><button class="btn-danger" onclick="confirmDeleteTask()" style="flex:1">삭제</button></div>
+    </div>
+  </div>
+
+  <!-- AI Popup -->
+  <div class="ai-popup" id="ai-popup">
+    <div class="ai-popup-header">
+      <div class="ai-tabs"><button class="ai-tab active" onclick="switchAITab('work')">업무 어시스턴트</button><button class="ai-tab" onclick="switchAITab('legal')">법률 자문</button></div>
+      <button class="ai-popup-close" onclick="toggleAIPopup()">&times;</button>
+    </div>
+    <div class="ai-provider-toggle" id="ai-provider-toggle">
+      <button class="ai-prov-btn active" data-prov="claude" onclick="switchAIProvider('claude')">Claude</button>
+      <button class="ai-prov-btn" data-prov="openai" onclick="switchAIProvider('openai')">OpenAI</button>
+    </div>
+    <div class="ai-messages" id="ai-messages"><div class="ai-msg ai-bot">안녕하세요! 업무 관련 질문을 해주세요.</div></div>
+    <div class="ai-no-key" id="ai-no-key" style="display:none"><p>해당 API 키를 먼저 등록해주세요</p><button class="btn-primary" onclick="document.getElementById('ai-popup').classList.remove('show');openProfileModal()">프로필 수정으로 이동</button></div>
+    <div class="ai-input-area" id="ai-input-area">
+      <input type="text" id="ai-input" placeholder="메시지를 입력하세요..." onkeydown="if(event.key==='Enter')sendAIMessage()">
+      <button onclick="sendAIMessage()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Team Modal -->
+  <div class="modal-overlay" id="modal-team">
+    <div class="modal-content modal-small">
+      <div class="modal-header"><h2>전체 팀원 목록</h2><button class="modal-close" onclick="closeModal('modal-team')">&times;</button></div>
+      <div id="team-full-list"></div>
+    </div>
+  </div>
+
+  <!-- Team Member Profile Modal -->
+  <div class="modal-overlay" id="modal-member-profile">
+    <div class="modal-content modal-small">
+      <div class="modal-header"><h2>팀원 프로필</h2><button class="modal-close" onclick="closeModal('modal-member-profile')">&times;</button></div>
+      <div id="member-profile-content"></div>
+    </div>
+  </div>
+
+  <!-- Mail Preview Modal -->
+  <div class="modal-overlay" id="modal-mail-preview">
+    <div class="modal-content" style="max-width:700px;padding:0;overflow:hidden;">
+      <div class="modal-header" style="padding:12px 20px;border-bottom:1px solid var(--border)">
+        <h2 style="font-size:15px">결산 메일 미리보기</h2>
+        <button class="modal-close" onclick="closeModal('modal-mail-preview')">&times;</button>
+      </div>
+      <div id="mail-preview-frame" style="max-height:70vh;overflow-y:auto;background:#f0f2f5;"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
